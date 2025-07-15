@@ -80,23 +80,15 @@ python3 ai_reviewer.py manuscript.md --no-editor
 # Custom configuration
 python3 ai_reviewer.py manuscript.md --max-tokens 8000 -t 0.5
 
-# Parallel execution (faster)
-python3 ai_reviewer.py manuscript.md --parallel
 
-# Custom output format and prefix
-python3 ai_reviewer.py manuscript.md --format json --prefix "finance_"
-
-# Combined review file instead of separate files
-python3 ai_reviewer.py manuscript.md --combined
+# Custom prefix for output files
+python3 ai_reviewer.py manuscript.md --prefix "finance_"
 
 # Target journal specification
 python3 ai_reviewer.py manuscript.md --journal "Journal of Finance"
 
-# Custom configuration file
-python3 ai_reviewer.py manuscript.md --config custom.env
-
 # Timing controls
-python3 ai_reviewer.py manuscript.md --delay 5 --timeout 180
+python3 ai_reviewer.py manuscript.md --delay 5
 
 # Output controls
 python3 ai_reviewer.py manuscript.md -v        # Verbose output
@@ -128,27 +120,22 @@ python3 ai_reviewer.py --version
 
 ### Output Configuration
 - `-o, --output-dir OUTPUT_DIR` - Output directory for review files (default: reviews)
-- `--format {markdown,json}` - Output format (default: markdown)
 - `--prefix PREFIX` - Prefix for output filenames (default: none)
 
 ### Agent Control
 - `--agents AGENTS` - Comma-separated list of agents to run (default: all)
   - Options: theoretical,empirical,clarity,significance,structure
 - `--no-editor` - Skip Editor's Letter generation
-- `--combined` - Generate combined review file instead of separate agent files
 
 ### LLM Configuration
 - `--max-tokens MAX_TOKENS` - Maximum tokens for LLM responses (overrides AI_REVIEWER_MAX_TOKENS)
 - `-t, --temperature TEMPERATURE` - Temperature for LLM responses (overrides AI_REVIEWER_TEMPERATURE)
 
 ### Execution Control
-- `--parallel` - Run agents in parallel (faster but uses more API quota)
 - `--delay DELAY` - Delay between agent calls in seconds (default: 2)
-- `--timeout TIMEOUT` - Timeout for each agent in seconds (default: 120)
 
 ### Review Customization
 - `--journal JOURNAL` - Target journal name (affects review style and standards)
-- `--config CONFIG` - Path to configuration file (.env format)
 
 ### Output Control
 - `-v, --verbose` - Verbose output
@@ -197,8 +184,6 @@ The Editor Agent synthesizes individual reviews and makes decisions based on:
 ```bash
 AI_REVIEWER_MAX_TOKENS=6000        # Maximum tokens per response
 AI_REVIEWER_TEMPERATURE=0.7        # Response randomness (0.0-1.0)
-AI_REVIEWER_PARALLEL=false         # Parallel agent execution
-AI_REVIEWER_OUTPUT_FORMAT=markdown # Output format
 ```
 
 ### Model Selection
@@ -227,7 +212,7 @@ python3 ai_reviewer.py manuscript.md --agents theoretical,empirical
 
 ### Multi-Model Comparison
 ```bash
-python3 ai_reviewer.py manuscript.md -m all --parallel
+python3 ai_reviewer.py manuscript.md -m all
 ```
 
 ### Custom Configuration
@@ -303,8 +288,7 @@ python3 ai_reviewer.py --test-connection
 ```
 
 ### Performance Tips
-- Use `--parallel` for faster execution
-- Adjust `--max-tokens` based on needs
+- Adjust `--max-tokens` based on needs (6000+ recommended)
 - Set `--delay` for API rate limiting
 - Use `--verbose` for debugging
 

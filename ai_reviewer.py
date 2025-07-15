@@ -23,7 +23,6 @@ Examples:
   %(prog)s manuscript.md -m claude -o reviews/        # Use Claude, save to reviews/
   %(prog)s manuscript.md -m all -t 0.5 --max-tokens 8000  # All models, custom settings
   %(prog)s manuscript.md --agents theoretical,empirical   # Only specific agents
-  %(prog)s manuscript.md --parallel                       # Parallel agent execution
         """
     )
     
@@ -49,12 +48,6 @@ Examples:
         help='Output directory for review files (default: reviews)'
     )
     
-    parser.add_argument(
-        '--format',
-        choices=['markdown', 'json'],
-        default='markdown',
-        help='Output format (default: markdown)'
-    )
     
     parser.add_argument(
         '--prefix',
@@ -88,11 +81,6 @@ Examples:
     )
     
     # Execution settings
-    parser.add_argument(
-        '--parallel',
-        action='store_true',
-        help='Run agents in parallel (faster but uses more API quota)'
-    )
     
     parser.add_argument(
         '--delay',
@@ -101,19 +89,8 @@ Examples:
         help='Delay between agent calls in seconds (default: 2)'
     )
     
-    parser.add_argument(
-        '--timeout',
-        type=int,
-        default=120,
-        help='Timeout for each agent in seconds (default: 120)'
-    )
     
     # Review settings
-    parser.add_argument(
-        '--combined',
-        action='store_true',
-        help='Generate combined review file instead of separate agent files'
-    )
     
     parser.add_argument(
         '--journal',
@@ -133,10 +110,6 @@ Examples:
         help='Test API connections and exit'
     )
     
-    parser.add_argument(
-        '--config',
-        help='Path to configuration file (.env format)'
-    )
     
     parser.add_argument(
         '-v', '--verbose',
@@ -161,19 +134,13 @@ Examples:
 def load_configuration(args):
     """Load configuration from environment and command-line arguments."""
     # Load environment variables
-    if args.config:
-        load_dotenv(args.config)
-    else:
-        load_dotenv()
+    load_dotenv()
     
     # Configuration with command-line overrides
     config = {
         'max_tokens': args.max_tokens or int(os.getenv('AI_REVIEWER_MAX_TOKENS', '6000')),
         'temperature': args.temperature or float(os.getenv('AI_REVIEWER_TEMPERATURE', '0.7')),
-        'parallel': args.parallel or os.getenv('AI_REVIEWER_PARALLEL', 'false').lower() == 'true',
-        'output_format': args.format or os.getenv('AI_REVIEWER_OUTPUT_FORMAT', 'markdown'),
         'delay': args.delay,
-        'timeout': args.timeout,
         'verbose': args.verbose,
         'quiet': args.quiet
     }
@@ -443,6 +410,7 @@ def generate_review(manuscript_path, model, selected_agents, config, args):
     
     agent_files = {}
     agent_decisions = {}
+    editorial_decision = None
     
     for agent_name in selected_agents:
         if agent_name not in agent_prompts:
@@ -508,8 +476,8 @@ def generate_review(manuscript_path, model, selected_agents, config, args):
             if config['verbose']:
                 print(f"    ✗ {agent_name} error: {e}")
         
-        # Delay between agents if not parallel
-        if not config['parallel'] and agent_name != selected_agents[-1]:
+        # Delay between agents
+        if agent_name != selected_agents[-1]:
             time.sleep(config['delay'])
     
     # Generate editor's letter if requested
@@ -611,7 +579,10 @@ Please refer to the individual reviewer reports for detailed feedback and recomm
         print(f"  Output directory: {args.output_dir}")
         print(f"  Agent reports: {len(agent_files)} files")
         if not args.no_editor:
-            print(f"  Editorial decision: {editorial_decision}")
+            if editorial_decision:
+                print(f"  Editorial decision: {editorial_decision}")
+            else:
+                print("  Editorial decision: Not generated (no successful agent reports)")
     
     return True
 
@@ -664,10 +635,8 @@ def main():
         print(f"  Models: {', '.join(models)}")
         print(f"  Agents: {', '.join(selected_agents)}")
         print(f"  Output: {args.output_dir}")
-        print(f"  Format: {args.format}")
         print(f"  Max Tokens: {config['max_tokens']}")
         print(f"  Temperature: {config['temperature']}")
-        print(f"  Parallel: {config['parallel']}")
         print()
     
     # Run review for each model
