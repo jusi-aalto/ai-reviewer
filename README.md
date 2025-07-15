@@ -239,9 +239,9 @@ ai-reviewer/
 └── LICENSE                      # MIT License
 ```
 
-## Supported Models
+## Default Models
 
-### Claude Sonnet 4.0 (Recommended)
+### Claude Sonnet 4.0
 - **Model**: `claude-sonnet-4-0`
 - **Strengths**: Excellent analytical depth, academic writing quality
 - **Use Case**: Primary recommendation for scholarly review
@@ -311,9 +311,9 @@ If you use this system in your research, please cite:
 ```bibtex
 @misc{ai-reviewer-2024,
   title={AI Reviewer: An Agentic Framework for Automated Scholarly Peer Review},
-  author={[Your Name]},
-  year={2024},
-  url={https://github.com/yourusername/ai-reviewer}
+  author={Jukka Sihvonen},
+  year={2025},
+  url={https://github.com/jusi-aalto/ai-reviewer}
 }
 ```
 
